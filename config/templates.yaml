@@ -1,3 +1,10 @@
+# Specific template data to be written to a given file.
+# On run, baker will search for files it's created whose names
+# match files here.  When it finds a match, it writes the
+# data to the file of that name.
+
+# Known issues:
+# For some reason, .gitignore doesn't seem to function as expected
 README.md: |
   Description
 
