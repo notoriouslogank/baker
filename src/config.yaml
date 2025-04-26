@@ -1,5 +1,5 @@
-author: thenotoriouslogank
-default_directory: "/mnt/c/Users/logan/Desktop/gh"
+author:
+default_directory:
 template:
   basic:
     project_folder:
