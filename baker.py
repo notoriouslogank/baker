@@ -4,7 +4,7 @@ from pathlib import Path
 from src import config, logger
 from src.utilities import Baker
 
-logging = logger.setup_logger(__name__, verbose=False)
+logging = logger.setup_logger(__name__, verbose=True)
 
 
 def parse_args():
@@ -25,17 +25,17 @@ def parse_args():
         action="store_true",
     )
     parser.add_argument(
+        "-S",
+        "--structure",
+        help="Structure for project directory [BASIC | ADVANCED]",
+        default="advanced",
+    )
+    parser.add_argument(
         "-s",
         "--subdirectories",
         help="Subdirectories to build inside main project directory",
         required=False,
         nargs="*",
-    )
-    parser.add_argument(
-        "-t",
-        "--template",
-        help="Project template (basic or advanced)",
-        default="advanced",
     )
     parser.add_argument(
         "--no-venv",
@@ -46,6 +46,15 @@ def parse_args():
 
 
 def make_project_path(destination: str | Path, name: str) -> Path:
+    """Make output path from destination directory and project name.
+
+    Args:
+        destination (str | Path): Destination directory to create project folder
+        name (str): Name for project folder
+
+    Returns:
+        Path: Path to project folder output
+    """
     project_directory = Path.joinpath(destination, name)
     return project_directory
 
@@ -53,43 +62,40 @@ def make_project_path(destination: str | Path, name: str) -> Path:
 if __name__ == "__main__":
     logging.debug(f"Starting program...")
     args = parse_args()
-    logging.debug(f"Parsed the following args: {args}")
-    configs = config.load_config()
-    logging.debug(f"Read the following configs: {configs}")
+    info, templates, structures = config.load_configs()
 
-    default_directory = configs["default_directory"]
+    destination_directory = info["new_project_dir"]
     usr_subdirs = []
     init_templates = []
 
-    if args.template not in configs["template"]:
-        logging.critical(f"Missing template: {args.template}!")
+    if args.structure not in structures:
+        logging.critical(f"Missing template: {args.structure}!")
         logging.warning(f"Falling back to default template.")
-        template = configs["template"]["basic"]["project_folder"]
+        structure = structures["basic"]
     else:
-        template = configs["template"][args.template]["project_folder"]
+        structure = structures[args.structure]
 
     if args.destination:
         project_directory = make_project_path(Path(args.destination), args.name)
     else:
-        project_directory = make_project_path(Path(default_directory), args.name)
+        project_directory = make_project_path(Path(destination_directory), args.name)
 
     if args.subdirectories:
         logging.debug(f"Got user subdirectories: {args.subdirectories}")
         for subdirectory in args.subdirectories:
             usr_subdirs.append(subdirectory)
 
-    bake = Baker(project_directory, args.name, configs["author"])
-    subdirs, init_files = bake.make_project_manifest(template, usr_subdirs)
+    bake = Baker(args.name, info, templates, structure, project_directory)
+    subdirs, init_files = bake.make_project_manifest(usr_subdirs)
     bake.make_project_main_directory()
     bake.make_dirs_and_files(subdirs, init_files)
-    init_file_templates = configs["init_files"]
-    bake.write_init_file_data(init_files, init_file_templates)
+    bake.write_init_file_data(init_files, templates)
 
     if args.no_venv == True:
         logging.debug(f"[--no-venv] flag selected; not creating a virtual environment.")
     else:
-        logging.debug(f"Creating virtual environment: {configs['venv']}")
-        bake.make_venv(configs["venv"])
+        logging.debug(f"Creating virtual environment: {info['venv_name']}")
+        bake.make_venv(info["venv_name"])
 
     if args.git == True:
         logging.debug(f"Initializing git repository...")

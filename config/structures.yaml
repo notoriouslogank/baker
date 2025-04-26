@@ -1,0 +1,14 @@
+basic:
+  project_folder:
+    - main.py
+    - README.md
+advanced:
+  project_folder:
+    - main.py
+    - README.md
+    - LICENSE
+    - src:
+      - logger.py
+      - __init__.py
+    - docs:
+      - CHANGELOG.md
