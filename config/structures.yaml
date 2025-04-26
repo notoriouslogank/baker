@@ -1,14 +1,34 @@
+# Structures are basically folder templates
+
+# Custom templates can be created using the following guide:
+
+#template_name:
+  #project_folder:
+    #- file
+    #- another_file
+    #- directory:
+      #- file_in_directory
+
+# Template name
 basic:
+  # Main project directory
   project_folder:
     - main.py
     - README.md
+# Template name
 advanced:
+  # Main project directory
   project_folder:
+    # Files in main project directory
     - main.py
     - README.md
     - LICENSE
+    # Subdirectory
     - src:
+      # Files in subdirectory
       - logger.py
       - __init__.py
+    # Subdirectory
     - docs:
+      # Files in subdirectory
       - CHANGELOG.md

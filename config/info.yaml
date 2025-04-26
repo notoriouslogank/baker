@@ -1,3 +1,6 @@
+# Project Author
 author: thenotoriouslogank
+# Directory in which new projects should be created
 new_project_dir: /mnt/c/Users/logan/Desktop/gh/
+# Virtual environment directory name within project directory
 venv_name: .venv
